@@ -1,6 +1,7 @@
 import json
 
 from BaselineAgent import BaselineAgent
+from PlannerAgent import PlannerAgent
 from environment import Environment
 from visualization import draw_map
 
@@ -58,3 +59,17 @@ while not env.is_done():
 print("done =", env.is_done(), "| шагов:", env.steps, "| провалов:", env.failures, "total_cost=", round(env.total_cost, 2), "|")
 
 print("--------------------------------------BASELINE AGENT ---------------------------------------------------------")
+
+env = Environment(MAP_SIZE, CITIES_COUNT, SEED, BAD_RATIO, FAIL_PROBABILITY)
+
+print("--------------------------------------PLANNER AGENT ----------------------------------------------------------")
+print("Плохие дороги:", sorted(env.bad_routes))
+print("Начало:", env.get_percept().current_city, env.get_percept().visited, "done =", env.is_done())
+
+agent = PlannerAgent()
+while not env.is_done() and env.steps < MAX_STEPS:
+    target = agent.act(env.get_percept())
+    success = env.step(target)
+    print(f"шаг {env.steps}: -> {target}  {'OK' if success else 'ПРОВАЛ'}  cost={env.total_cost:.1f}")
+print("done =", env.is_done(), "| шагов:", env.steps, "| провалов:", env.failures, "total_cost=", round(env.total_cost, 2), "|")
+
