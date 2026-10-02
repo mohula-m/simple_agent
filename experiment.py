@@ -41,5 +41,5 @@ for seed in SEEDS:
     print(f"seed {seed:2}: baseline {baseline_result['total_cost']:8.1f} | planner {planner_result['total_cost']:8.1f}")
 
 print()
-print(f"Baseline: среднее {statistics.mean(baseline_costs):.1f}, std {statistics.stdev(baseline_costs):.1f}")
-print(f"Planner:  среднее {statistics.mean(planner_costs):.1f}, std {statistics.stdev(planner_costs):.1f}")
+print(f"Baseline: mean {statistics.mean(baseline_costs):.1f}, std {statistics.stdev(baseline_costs):.1f}")
+print(f"Planner:  mean {statistics.mean(planner_costs):.1f}, std {statistics.stdev(planner_costs):.1f}")

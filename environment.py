@@ -53,17 +53,17 @@ class Environment:
         self.bad_routes = self._generate_bad_routes()
         self.fail_prob = fail_prob
 
-        # состояние эпизода
-        self.base = 0                     # индекс базы (старт и финиш)
-        self.current = self.base          # где сейчас курьер
-        self.visited = {self.base}        # посещённые города
-        self.total_cost = 0.0             # сколько потрачено, включая проваленные поездки
-        self.steps = 0                    # сколько сделано ходов
-        self.failures = 0                 # сколько поездок провалилось
-        self.last_success = True          # удалась ли последняя поездка
+        # episode state
+        self.base = 0                     # base index (start and finish)
+        self.current = self.base          # where the courier is now
+        self.visited = {self.base}        # visited cities
+        self.total_cost = 0.0             # total cost, including failed trips
+        self.steps = 0                    # number of moves made
+        self.failures = 0                 # number of failed trips
+        self.last_success = True          # whether the last trip succeeded
 
     def _generate_bad_routes(self):
-        # все дороги: пары (i, j), где i < j, чтобы 2->7 и 7->2 были одной дорогой
+        # all roads: pairs (i, j) with i < j, so 2->7 and 7->2 are the same road
         all_routes = []
         for i in range(self.cities_count):
             for j in range(i + 1, self.cities_count):
@@ -74,26 +74,26 @@ class Environment:
 
 
     def step(self, target_city_index):
-        # Актуатор: агент просит поехать в target_city_index, среда решает, что произошло.
-        # Возвращает True, если курьер доехал, и False, если поездка провалилась.
+        # Actuator: the agent asks to go to target_city_index, the environment decides what happens.
+        # Returns True if the courier arrived and False if the trip failed.
 
-        # 1. Проверки: среда не доверяет агенту и сама следит за правилами мира
+        # 1. Checks: the environment does not trust the agent and enforces the world rules itself
         if not (0 <= target_city_index < self.cities_count):
-            raise ValueError(f"Города {target_city_index} не существует (всего {self.cities_count})")
+            raise ValueError(f"City {target_city_index} does not exist (total {self.cities_count})")
         if target_city_index == self.current:
-            raise ValueError(f"Курьер уже находится в городе {target_city_index}")
+            raise ValueError(f"Courier is already in city {target_city_index}")
 
-        # 2. Поездка стоит денег/времени всегда, даже если окончится провалом
+        # 2. A trip always costs money/time, even if it fails
         self.steps += 1
         self.total_cost += self.dist_matrix[self.current][target_city_index]
 
-        # 3. Провал возможен только на плохой дороге и только с вероятностью fail_prob
+        # 3. A failure is possible only on a bad road and only with probability fail_prob
         if self.is_bad_route(self.current, target_city_index) and self.rng.random() < self.fail_prob:
-            # курьер не проехал и остаётся на месте
+            # the courier did not get through and stays in place
             self.failures += 1
             self.last_success = False
         else:
-            # курьер доехал: переезжает и отмечает город как посещённый
+            # the courier arrived: moves and marks the city as visited
             self.current = target_city_index
             self.visited.add(target_city_index)
             self.last_success = True
@@ -101,8 +101,8 @@ class Environment:
         return self.last_success
 
     def get_percept(self):
-        # Сенсор: снимок того, что агенту разрешено знать в данный момент.
-        # Отдаём копии (tuple, frozenset), чтобы агент не мог изменить состояние среды.
+        # Sensor: a snapshot of what the agent is allowed to know at this moment.
+        # Copies (tuple, frozenset) are given so the agent cannot change the environment state.
         return Percept(
             current_city=self.current,
             cities=tuple(self.cities),
@@ -129,5 +129,5 @@ class Environment:
         return dist_matrix
 
     def is_done(self):
-        # Эпизод закончен, когда посещены все города и курьер вернулся на базу
+        # The episode is over when all cities are visited and the courier is back at the base
         return len(self.visited) == self.cities_count and self.current == self.base
