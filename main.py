@@ -26,3 +26,17 @@ for i in range(env.cities_count):
     print()
 
 draw_map(env.cities, env.map_size)
+
+print("Плохие дороги:", sorted(env.bad_routes))
+print("Начало:", env.get_percept().current_city, env.get_percept().visited, "done =", env.is_done())
+
+# объехать все города по порядку номеров и вернуться на базу
+for target in list(range(1, env.cities_count)) + [env.base]:
+    while True:
+        success = env.step(target)
+        print(f"шаг {env.steps}: -> {target}  {'OK' if success else 'ПРОВАЛ'}  cost={env.total_cost:.1f}")
+        if success:
+            break
+
+print("Конец: done =", env.is_done(), "| шагов:", env.steps, "| провалов:", env.failures,
+      "| стоимость:", round(env.total_cost, 2))
