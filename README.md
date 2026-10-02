@@ -7,7 +7,8 @@ roads are bad.
 
 Two agents are compared:
 - `BaselineAgent` - always goes to the nearest unvisited city
-- `PlannerAgent` - plans the whole remaining route (greedy + 2-opt) every turn and goes to the first city of it
+- `PlannerAgent` - plans the whole remaining route (greedy + 2-opt) every turn and goes to the first city of it.
+  It remembers on which roads it failed and treats them as more expensive, so next time the plan goes around them
 
 ## Files
 
@@ -15,8 +16,9 @@ Two agents are compared:
 - `percept.py` - what the agent can see
 - `city.py` - city dataclass
 - `BaselineAgent.py`, `PlannerAgent.py` - agents
-- `main.py` - one run of every agent with the seed from config, draws the routes
-- `experiment.py` - runs both agents on 20 seeds and prints mean / std
+- `main.py` - one run with the seed from config: first shows the map, then runs the cities in order,
+  the baseline and the planner, and draws their routes
+- `experiment.py` - runs both agents on seeds 1-20 and prints mean / std of cost, steps, failures and decision time
 - `visualization.py` - drawing
 - `config.json` - parameters
 
@@ -36,6 +38,9 @@ pip install -r requirements.txt
 python main.py
 python experiment.py
 ```
+
+In `main.py` the first window is the map with all roads, the route windows open after you close it.
+`experiment.py` takes all parameters from `config.json` except `seed`.
 
 ## Config
 
