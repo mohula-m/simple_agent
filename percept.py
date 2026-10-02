@@ -9,3 +9,4 @@ class Percept:
     cities: tuple[City, ...]
     visited: frozenset[int]
     last_success: bool
+    dist_matrix: list[list[float]]

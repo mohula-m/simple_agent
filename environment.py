@@ -108,6 +108,7 @@ class Environment:
             cities=tuple(self.cities),
             visited=frozenset(self.visited),
             last_success=self.last_success,
+            dist_matrix=self.dist_matrix
         )
 
     def is_bad_route(self, a, b):

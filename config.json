@@ -1,8 +1,8 @@
 {
   "environmentSettings": {
-    "map_Size": 100,
-    "cities": 10,
-    "seed": 5,
+    "map_Size": 200,
+    "cities": 20,
+    "seed": 10,
     "bad_ratio": 0.2,
     "fail_prob": 0.5
 

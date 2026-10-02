@@ -1,4 +1,6 @@
 import json
+
+from BaselineAgent import BaselineAgent
 from environment import Environment
 from visualization import draw_map
 
@@ -26,6 +28,7 @@ for i in range(env.cities_count):
     print()
 
 draw_map(env.cities, env.map_size)
+print("--------------------------------------GOING AROUNG ---------------------------------------------------------")
 
 print("Плохие дороги:", sorted(env.bad_routes))
 print("Начало:", env.get_percept().current_city, env.get_percept().visited, "done =", env.is_done())
@@ -40,3 +43,18 @@ for target in list(range(1, env.cities_count)) + [env.base]:
 
 print("Конец: done =", env.is_done(), "| шагов:", env.steps, "| провалов:", env.failures,
       "| стоимость:", round(env.total_cost, 2))
+
+env = Environment(MAP_SIZE, CITIES_COUNT, SEED, BAD_RATIO, FAIL_PROBABILITY)
+
+print("--------------------------------------BASELINE AGENT ---------------------------------------------------------")
+print("Плохие дороги:", sorted(env.bad_routes))
+print("Начало:", env.get_percept().current_city, env.get_percept().visited, "done =", env.is_done())
+
+agent = BaselineAgent()
+while not env.is_done():
+    target = agent.act(env.get_percept())
+    success = env.step(target)
+    print(f"шаг {env.steps}: -> {target}  {'OK' if success else 'ПРОВАЛ'}  cost={env.total_cost:.1f}")
+print("done =", env.is_done(), "| шагов:", env.steps, "| провалов:", env.failures, "total_cost=", round(env.total_cost, 2), "|")
+
+print("--------------------------------------BASELINE AGENT ---------------------------------------------------------")
