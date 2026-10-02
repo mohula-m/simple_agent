@@ -1,13 +1,22 @@
 import json
 import statistics
+import time
 
 from environment import Environment
 from BaselineAgent import BaselineAgent
 from PlannerAgent import PlannerAgent
 
 def run_episode(env, agent, max_steps):
+    # time is measured only for the agent's decisions, not for the environment
+    decision_time = 0.0
+
     while not env.is_done() and env.steps < max_steps:
-        target = agent.act(env.get_percept())
+        percept = env.get_percept()
+
+        start = time.perf_counter()
+        target = agent.act(percept)
+        decision_time += time.perf_counter() - start
+
         env.step(target)
 
     return {
@@ -15,6 +24,7 @@ def run_episode(env, agent, max_steps):
         "steps": env.steps,
         "failures": env.failures,
         "completed": env.is_done(),
+        "time_ms": decision_time * 1000,
     }
 
 with open("config.json", "r") as config_file:
@@ -24,8 +34,8 @@ settings = config_data["environmentSettings"]
 MAX_STEPS = config_data["experimentSettings"]["max_steps"]
 SEEDS = range(1, 21)
 
-baseline_costs = []
-planner_costs = []
+baseline_results = []
+planner_results = []
 
 for seed in SEEDS:
     env = Environment(settings["map_Size"], settings["cities"], seed,
@@ -36,10 +46,30 @@ for seed in SEEDS:
                       settings["bad_ratio"], settings["fail_prob"])
     planner_result = run_episode(env, PlannerAgent(), MAX_STEPS)
 
-    baseline_costs.append(baseline_result["total_cost"])
-    planner_costs.append(planner_result["total_cost"])
-    print(f"seed {seed:2}: baseline {baseline_result['total_cost']:8.1f} | planner {planner_result['total_cost']:8.1f}")
+    baseline_results.append(baseline_result)
+    planner_results.append(planner_result)
+    print(f"seed {seed:2}: baseline {baseline_result['total_cost']:8.1f} ({baseline_result['time_ms']:6.2f} ms)"
+          f" | planner {planner_result['total_cost']:8.1f} ({planner_result['time_ms']:6.2f} ms)")
+
+
+
+def print_summary(name, results):
+    costs = []
+    steps = []
+    failures = []
+    times = []
+    for result in results:
+        costs.append(result["total_cost"])
+        steps.append(result["steps"])
+        failures.append(result["failures"])
+        times.append(result["time_ms"])
+
+    print(f"{name}: cost {statistics.mean(costs):.1f} +- {statistics.stdev(costs):.1f}"
+          f" | steps {statistics.mean(steps):.1f} +- {statistics.stdev(steps):.1f}"
+          f" | failures {statistics.mean(failures):.1f}"
+          f" | time {statistics.mean(times):.2f} ms")
+
 
 print()
-print(f"Baseline: mean {statistics.mean(baseline_costs):.1f}, std {statistics.stdev(baseline_costs):.1f}")
-print(f"Planner:  mean {statistics.mean(planner_costs):.1f}, std {statistics.stdev(planner_costs):.1f}")
+print_summary("Baseline", baseline_results)
+print_summary("Planner ", planner_results)
