@@ -7,17 +7,18 @@ roads are bad.
 
 Two agents are compared:
 - `BaselineAgent` - always goes to the nearest unvisited city
-- `PlannerAgent` - plans the whole remaining route (greedy + 2-opt) every turn and goes to the first city of it.
-  It remembers on which roads it failed and treats them as more expensive, so next time the plan goes around them
+- `MemoryAgent` - the same nearest-city rule, but it remembers on which roads it failed and treats them
+  as more expensive (distance / (1 - p), p = fails / (attempts + 1)), so it picks another city instead of
+  trying the same bad road again. Without bad roads both agents behave exactly the same
 
 ## Files
 
 - `environment.py` - the world (cities, distances, bad roads), `step()` is the actuator, `get_percept()` is the sensor
 - `percept.py` - what the agent can see
 - `city.py` - city dataclass
-- `BaselineAgent.py`, `PlannerAgent.py` - agents
+- `BaselineAgent.py`, `MemoryAgent.py` - agents
 - `main.py` - one run with the seed from config: first shows the map, then runs the cities in order,
-  the baseline and the planner, and draws their routes
+  the baseline and the memory agent, and draws their routes
 - `experiment.py` - runs both agents on seeds 1-20 and prints mean / std of cost, steps, failures and decision time
 - `visualization.py` - drawing
 - `config.json` - parameters

@@ -1,7 +1,7 @@
 import json
 
 from BaselineAgent import BaselineAgent
-from PlannerAgent import PlannerAgent
+from MemoryAgent import MemoryAgent
 from environment import Environment
 from visualization import draw_map, draw_route
 import matplotlib.pyplot as plt
@@ -70,23 +70,23 @@ print("--------------------------------------BASELINE AGENT --------------------
 
 env = Environment(MAP_SIZE, CITIES_COUNT, SEED, BAD_RATIO, FAIL_PROBABILITY)
 
-print("--------------------------------------PLANNER AGENT ----------------------------------------------------------")
+print("--------------------------------------MEMORY AGENT -----------------------------------------------------------")
 print("Bad roads:", sorted(env.bad_routes))
 print("Start:", env.get_percept().current_city, env.get_percept().visited, "done =", env.is_done())
 
-agent = PlannerAgent()
-planner_route = [env.base]
+agent = MemoryAgent()
+memory_route = [env.base]
 while not env.is_done() and env.steps < MAX_STEPS:
     target = agent.act(env.get_percept())
     success = env.step(target)
     print(f"step {env.steps}: -> {target}  {'OK' if success else 'FAIL'}  cost={env.total_cost:.1f}")
     if success:
-        planner_route.append(target)
+        memory_route.append(target)
 print("done =", env.is_done(), "| steps:", env.steps, "| failures:", env.failures, "total_cost=", round(env.total_cost, 2), "|")
-planner_title = f"Planner (greedy + 2-opt): cost {env.total_cost:.1f}, failures {env.failures}"
+memory_title = f"Memory agent (greedy + memory): cost {env.total_cost:.1f}, failures {env.failures}"
 
 # Draw routes: three separate windows, all opened at the same time
 draw_route(env.cities, order_route, env.bad_routes, env.map_size, order_title)
 draw_route(env.cities, baseline_route, env.bad_routes, env.map_size, baseline_title)
-draw_route(env.cities, planner_route, env.bad_routes, env.map_size, planner_title)
+draw_route(env.cities, memory_route, env.bad_routes, env.map_size, memory_title)
 plt.show()

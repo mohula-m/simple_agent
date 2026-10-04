@@ -4,7 +4,7 @@ import time
 
 from environment import Environment
 from BaselineAgent import BaselineAgent
-from PlannerAgent import PlannerAgent
+from MemoryAgent import MemoryAgent
 
 def run_episode(env, agent, max_steps):
     # time is measured only for the agent's decisions, not for the environment
@@ -35,7 +35,7 @@ MAX_STEPS = config_data["experimentSettings"]["max_steps"]
 SEEDS = range(1, 21)
 
 baseline_results = []
-planner_results = []
+memory_results = []
 
 for seed in SEEDS:
     env = Environment(settings["map_Size"], settings["cities"], seed,
@@ -44,12 +44,12 @@ for seed in SEEDS:
 
     env = Environment(settings["map_Size"], settings["cities"], seed,
                       settings["bad_ratio"], settings["fail_prob"])
-    planner_result = run_episode(env, PlannerAgent(), MAX_STEPS)
+    memory_result = run_episode(env, MemoryAgent(), MAX_STEPS)
 
     baseline_results.append(baseline_result)
-    planner_results.append(planner_result)
+    memory_results.append(memory_result)
     print(f"seed {seed:2}: baseline {baseline_result['total_cost']:8.1f} ({baseline_result['time_ms']:6.2f} ms)"
-          f" | planner {planner_result['total_cost']:8.1f} ({planner_result['time_ms']:6.2f} ms)")
+          f" | memory {memory_result['total_cost']:8.1f} ({memory_result['time_ms']:6.2f} ms)")
 
 
 
@@ -72,4 +72,4 @@ def print_summary(name, results):
 
 print()
 print_summary("Baseline", baseline_results)
-print_summary("Planner ", planner_results)
+print_summary("Memory  ", memory_results)
