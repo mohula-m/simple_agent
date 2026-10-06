@@ -2,12 +2,12 @@
   "environmentSettings": {
     "map_Size": 200,
     "cities": 30,
-    "seed": 10,
-    "bad_ratio": 0.4,
+    "seed": 5,
+    "bad_ratio": 0.3,
     "fail_prob": 0.7
 
   },
   "experimentSettings": {
-    "max_steps": 1000
+    "max_steps": 10000
   }
 }
